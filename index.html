@@ -447,12 +447,12 @@ function App() {
     setErr(""); setLoading(true); setPlan(null); setOpenSpot(null); setRTab("plan");
     const msg = `エリア: ${target}\n時間帯: ${time}\n雰囲気: ${vibes.join("、")||"おまかせ"}\n予算感: ${budget||"大学生向け"}`;
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json","x-api-key":"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"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM,messages:[{role:"user",content:msg}]})
+      const res = await fetch("https://api.openai.com/v1/chat/completions",{
+        method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer sk-proj-Ya_k34Y5c5vjiWee6DF1jHeCZYqkDnYBEopL9DqEZX-v3RHldOvE_O_iN4rn_aDfJlAmy4Zo-vT3BlbkFJdFFiTJZ9VqXIa27siAp9NCKCIk2mHdnrznKh-"},
+        body:JSON.stringify({model:"gpt-4o",max_tokens:1000,messages:[{role:"system",content:SYSTEM},{role:"user",content:msg}]})
       });
       const d = await res.json();
-      const raw = d.content?.map(b=>b.text||"").join("")||"";
+      const raw = d.choices?.[0]?.message?.content||"";
       setPlan(JSON.parse(raw.replace(/```json|```/g,"").trim()));
       setAppPage("result");
     } catch { setErr("生成に失敗しました。もう一度お試しください。"); }
