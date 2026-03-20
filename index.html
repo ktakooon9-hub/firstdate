@@ -448,7 +448,7 @@ function App() {
     const msg = `エリア: ${target}\n時間帯: ${time}\n雰囲気: ${vibes.join("、")||"おまかせ"}\n予算感: ${budget||"大学生向け"}`;
     try {
       const res = await fetch("https://api.openai.com/v1/chat/completions",{
-        method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer sk-proj-Ya_k34Y5c5vjiWee6DF1jHeCZYqkDnYBEopL9DqEZX-v3RHldOvE_O_iN4rn_aDfJlAmy4Zo-vT3BlbkFJdFFiTJZ9VqXIa27siAp9NCKCIk2mHdnrznKh-"},
+        method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer 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 "},
         body:JSON.stringify({model:"gpt-4o",max_tokens:1000,messages:[{role:"system",content:SYSTEM},{role:"user",content:msg}]})
       });
       const d = await res.json();
