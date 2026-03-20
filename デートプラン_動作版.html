@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRST DATE — 初デートを、成功させよう。</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+/* ── TOKENS ── */
+:root {
+  --gold: #c9a96e; --gold-light: #e2c99a;
+  --gold-dim: rgba(201,169,110,0.15);
+  --bg: #090806; --bg2: #111009; --bg3: #181510;
+  --ink: #f0e8d8;
+  --ink-dim: rgba(240,232,216,0.5);
+  --ink-faint: rgba(240,232,216,0.22);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: 'Noto Serif JP','Georgia',serif; font-weight:300; overflow-x:hidden; }
+
+/* ── PAGE TRANSITION ── */
+#lp-root, #app-root {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#lp-root.hidden, #app-root.hidden {
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   LP STYLES
+═══════════════════════════════════════ */
+.lp { min-height: 100vh; }
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:200;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 48px; height:64px;
+  background:rgba(9,8,6,0.88); backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(201,169,110,0.1);
+}
+.nav-brand { display:flex; align-items:center; gap:10px; text-decoration:none; cursor:pointer; background:none; border:none; }
+.nav-brand-name { font-family:'Cormorant Garamond',serif; font-size:20px; letter-spacing:8px; color:var(--gold); font-weight:400; }
+.nav-cta, .btn-primary, .btn-ghost {
+  font-family:'Noto Serif JP',serif; cursor:pointer; border:none; transition:all 0.25s;
+}
+.nav-cta { background:var(--gold); padding:9px 24px; border-radius:2px; color:var(--bg); font-size:13px; font-weight:500; letter-spacing:2px; }
+.nav-cta:hover { background:var(--gold-light); transform:translateY(-1px); }
+.btn-primary { background:var(--gold); padding:16px 40px; border-radius:2px; color:var(--bg); font-size:14px; font-weight:500; letter-spacing:3px; }
+.btn-primary:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 8px 32px rgba(201,169,110,0.3); }
+.btn-ghost { background:transparent; border:1px solid rgba(201,169,110,0.35); padding:16px 40px; border-radius:2px; color:var(--gold); font-size:14px; letter-spacing:3px; }
+.btn-ghost:hover { background:var(--gold-dim); transform:translateY(-2px); }
+
+/* HERO */
+.hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:120px 24px 80px; position:relative; overflow:hidden; }
+.hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,169,110,0.08) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 20% 80%,rgba(201,169,110,0.04) 0%,transparent 60%); pointer-events:none; }
+.hero-line { position:absolute; top:0; left:50%; transform:translateX(-50%); width:1px; height:100%; background:linear-gradient(to bottom,transparent,rgba(201,169,110,0.2) 30%,rgba(201,169,110,0.08) 70%,transparent); pointer-events:none; }
+.hero-tag { display:inline-block; font-size:11px; letter-spacing:5px; color:var(--gold); border:1px solid rgba(201,169,110,0.4); padding:6px 20px; border-radius:2px; margin-bottom:48px; animation:fadeUp 0.8s ease 0.1s both; }
+.hero-title { font-family:'Cormorant Garamond',serif; font-size:clamp(52px,8vw,96px); font-weight:300; line-height:1.1; letter-spacing:4px; margin-bottom:16px; animation:fadeUp 0.8s ease 0.25s both; }
+.hero-title em { font-style:italic; color:var(--gold); }
+.hero-sub { font-size:clamp(14px,2vw,17px); color:var(--ink-dim); line-height:2; max-width:500px; margin:0 auto 56px; animation:fadeUp 0.8s ease 0.4s both; }
+.hero-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; animation:fadeUp 0.8s ease 0.55s both; }
+.hero-scroll { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--ink-faint); font-size:11px; letter-spacing:3px; animation:fadeUp 1s ease 1s both; }
+.scroll-line { width:1px; height:48px; background:linear-gradient(to bottom,var(--gold),transparent); animation:scrollAnim 2s ease-in-out infinite; }
+@keyframes scrollAnim { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* PAIN */
+.pain { padding:120px 24px; max-width:900px; margin:0 auto; text-align:center; }
+.section-label { font-size:11px; letter-spacing:5px; color:var(--gold); margin-bottom:24px; text-transform:uppercase; }
+.pain-lead { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,48px); font-weight:300; line-height:1.4; margin-bottom:64px; }
+.pain-lead em { font-style:italic; color:var(--gold); }
+.pain-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+.pain-card { background:var(--bg2); padding:40px 28px; border:1px solid rgba(201,169,110,0.08); transition:all 0.3s; }
+.pain-card:hover { background:var(--bg3); border-color:rgba(201,169,110,0.2); }
+.pain-num { font-family:'Cormorant Garamond',serif; font-size:56px; font-weight:300; color:rgba(201,169,110,0.12); line-height:1; margin-bottom:16px; }
+.pain-text { font-size:15px; line-height:1.9; color:var(--ink-dim); }
+.pain-text strong { color:var(--ink); font-weight:400; }
+
+/* SOLUTION */
+.solution { padding:120px 24px; background:var(--bg2); border-top:1px solid rgba(201,169,110,0.08); border-bottom:1px solid rgba(201,169,110,0.08); }
+.solution-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.solution-title { font-family:'Cormorant Garamond',serif; font-size:clamp(32px,4vw,52px); font-weight:300; line-height:1.3; margin-bottom:24px; }
+.solution-title em { font-style:italic; color:var(--gold); }
+.solution-body { font-size:15px; color:var(--ink-dim); line-height:2; margin-bottom:40px; }
+.feat-rows { display:flex; flex-direction:column; gap:3px; }
+.feat-row { display:flex; align-items:flex-start; gap:20px; padding:24px 28px; background:var(--bg); border:1px solid rgba(201,169,110,0.08); transition:all 0.3s; }
+.feat-row:hover { border-color:rgba(201,169,110,0.25); background:var(--bg3); }
+.feat-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+.feat-h { font-size:15px; font-weight:400; color:var(--ink); margin-bottom:4px; }
+.feat-p { font-size:13px; color:var(--ink-dim); line-height:1.7; }
+
+/* HOW */
+.how { padding:120px 24px; max-width:900px; margin:0 auto; text-align:center; }
+.how-title { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,48px); font-weight:300; line-height:1.4; margin-bottom:72px; }
+.steps { display:grid; grid-template-columns:repeat(4,1fr); position:relative; }
+.steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(to right,transparent,rgba(201,169,110,0.3) 20%,rgba(201,169,110,0.3) 80%,transparent); }
+.step { padding:0 16px; }
+.step-circle { width:56px; height:56px; border-radius:50%; border:1px solid rgba(201,169,110,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--gold); background:var(--bg); position:relative; z-index:1; }
+.step h4 { font-size:14px; font-weight:400; color:var(--ink); margin-bottom:8px; line-height:1.5; }
+.step p { font-size:12px; color:var(--ink-dim); line-height:1.8; }
+
+/* PRICE */
+.price-sec { padding:120px 24px; background:var(--bg2); border-top:1px solid rgba(201,169,110,0.08); text-align:center; }
+.price-inner { max-width:600px; margin:0 auto; }
+.price-h { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,48px); font-weight:300; margin-bottom:16px; }
+.price-sub-text { font-size:14px; color:var(--ink-dim); margin-bottom:56px; }
+.price-card { border:1px solid rgba(201,169,110,0.3); padding:56px 48px; position:relative; background:var(--bg); }
+.price-card::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:80%; height:1px; background:linear-gradient(to right,transparent,var(--gold),transparent); }
+.price-badge { display:inline-block; background:var(--gold-dim); border:1px solid rgba(201,169,110,0.4); color:var(--gold); font-size:11px; letter-spacing:3px; padding:5px 16px; border-radius:2px; margin-bottom:24px; }
+.price-amount { font-family:'Cormorant Garamond',serif; font-size:72px; font-weight:300; color:var(--gold); line-height:1; }
+.price-unit { font-size:16px; color:var(--ink-dim); margin-bottom:8px; }
+.price-note { font-size:13px; color:var(--ink-faint); margin-bottom:40px; }
+.price-list { display:flex; flex-direction:column; gap:12px; text-align:left; margin-bottom:40px; }
+.price-li { display:flex; align-items:center; gap:12px; font-size:14px; color:var(--ink-dim); }
+.price-check { color:var(--gold); font-size:16px; }
+.price-free { font-size:13px; color:var(--ink-faint); border-top:1px solid rgba(201,169,110,0.1); padding-top:24px; margin-top:16px; }
+.price-free strong { color:var(--gold); font-weight:400; }
+
+/* TESTIMONIALS */
+.testi { padding:120px 24px; max-width:1000px; margin:0 auto; text-align:center; }
+.testi-h { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,44px); font-weight:300; margin-bottom:64px; }
+.testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+.testi-card { background:var(--bg2); padding:36px 28px; border:1px solid rgba(201,169,110,0.08); text-align:left; transition:all 0.3s; }
+.testi-card:hover { border-color:rgba(201,169,110,0.2); }
+.testi-stars { color:var(--gold); font-size:14px; letter-spacing:3px; margin-bottom:16px; }
+.testi-text { font-size:14px; color:var(--ink-dim); line-height:1.9; margin-bottom:20px; }
+.testi-name { font-size:12px; color:var(--ink-faint); letter-spacing:2px; }
+
+/* FAQ */
+.faq-sec { padding:120px 24px; background:var(--bg2); border-top:1px solid rgba(201,169,110,0.08); }
+.faq-inner { max-width:700px; margin:0 auto; }
+.faq-h { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,44px); font-weight:300; text-align:center; margin-bottom:64px; }
+.faq-item { border-bottom:1px solid rgba(201,169,110,0.1); }
+.faq-q { display:flex; align-items:center; justify-content:space-between; padding:24px 0; cursor:pointer; font-size:15px; color:var(--ink); transition:color 0.2s; }
+.faq-q:hover { color:var(--gold); }
+.faq-icon { color:var(--gold); font-size:20px; flex-shrink:0; transition:transform 0.3s; }
+.faq-a { font-size:14px; color:var(--ink-dim); line-height:2; padding-bottom:24px; display:none; }
+.faq-item.open .faq-a { display:block; }
+.faq-item.open .faq-icon { transform:rotate(45deg); }
+
+/* CTA FINAL */
+.cta-final { padding:160px 24px; text-align:center; position:relative; overflow:hidden; }
+.cta-final-bg { position:absolute; inset:0; background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(201,169,110,0.06) 0%,transparent 70%); pointer-events:none; }
+.cta-final-h { font-family:'Cormorant Garamond',serif; font-size:clamp(36px,6vw,72px); font-weight:300; line-height:1.2; margin-bottom:24px; }
+.cta-final-h em { font-style:italic; color:var(--gold); }
+.cta-final-sub { font-size:15px; color:var(--ink-dim); margin-bottom:48px; line-height:2; }
+
+footer { padding:40px 48px; border-top:1px solid rgba(201,169,110,0.1); display:flex; align-items:center; justify-content:space-between; }
+.footer-brand { font-family:'Cormorant Garamond',serif; font-size:16px; letter-spacing:6px; color:var(--gold); }
+.footer-copy { font-size:12px; color:var(--ink-faint); letter-spacing:1px; }
+.divider { height:1px; background:linear-gradient(to right,transparent,rgba(201,169,110,0.2),transparent); margin:0 48px; }
+.reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease,transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ═══════════════════════════════════════
+   APP STYLES
+═══════════════════════════════════════ */
+#app-root { min-height:100vh; background:var(--bg); }
+.app-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; height:58px;
+  border-bottom:1px solid rgba(201,169,110,0.12);
+  background:rgba(12,10,8,0.96);
+  position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);
+}
+.app-nav-brand { background:transparent; border:none; display:flex; align-items:center; gap:10px; cursor:pointer; padding:0; }
+.app-nav-tab { background:transparent; border:1px solid transparent; padding:5px 14px; border-radius:2px; color:rgba(240,232,216,0.45); font-size:13px; cursor:pointer; letter-spacing:1px; transition:all 0.2s; font-family:'Noto Serif JP',serif; }
+.app-nav-tab.active { border-color:rgba(201,169,110,0.4); color:var(--gold); background:rgba(201,169,110,0.08); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUpAnim { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeUpAnim 0.4s ease; }
+.spin { width:16px;height:16px;border:2px solid rgba(12,10,8,0.35);border-top-color:var(--bg);border-radius:50%;animation:spinAnim 0.75s linear infinite;display:inline-block; }
+@keyframes spinAnim { to{transform:rotate(360deg)} }
+
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .pain-grid{grid-template-columns:1fr;}
+  .solution-inner{grid-template-columns:1fr;gap:48px;}
+  .steps{grid-template-columns:1fr 1fr;gap:40px;}
+  .steps::before{display:none;}
+  .testi-grid{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:16px;text-align:center;}
+  .price-card{padding:40px 24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── LP ─── -->
+<div id="lp-root">
+<div class="lp">
+
+<nav>
+  <button class="nav-brand" onclick="goToLP()">
+    <span style="color:var(--gold);font-size:18px">♡</span>
+    <span class="nav-brand-name">FIRST DATE</span>
+  </button>
+  <button class="nav-cta" onclick="goToApp()">無料で試す</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+  <div class="hero-tag">初デートサポートアプリ — 東京版</div>
+  <h1 class="hero-title">はじめての<br>デートを、<br><em>成功させよう。</em></h1>
+  <p class="hero-sub">AIが東京のデートプランを設計。<br>セリフ例・服装・緊張対策まで、<br>必要なことを全部用意します。</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="goToApp()">無料でプランを作る</button>
+    <button class="btn-ghost" onclick="document.getElementById('how-sec').scrollIntoView({behavior:'smooth'})">使い方を見る</button>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>SCROLL</span>
+  </div>
+</section>
+
+<section class="pain">
+  <p class="section-label reveal">こんな悩みはありませんか？</p>
+  <h2 class="pain-lead reveal">初デートって、<em>何をすればいいか</em><br>まったくわからない。</h2>
+  <div class="pain-grid">
+    <div class="pain-card reveal" style="transition-delay:.1s">
+      <div class="pain-num">01</div>
+      <p class="pain-text"><strong>どこに連れて行けばいいか</strong>わからない。調べても情報が多すぎて決められない。</p>
+    </div>
+    <div class="pain-card reveal" style="transition-delay:.2s">
+      <div class="pain-num">02</div>
+      <p class="pain-text">当日、<strong>会話が途切れたらどうしよう</strong>と不安で、全然楽しめる気がしない。</p>
+    </div>
+    <div class="pain-card reveal" style="transition-delay:.3s">
+      <div class="pain-num">03</div>
+      <p class="pain-text"><strong>何を着ていけばいいか</strong>も、相手の反応への対処法も、誰も教えてくれない。</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="solution">
+  <div class="solution-inner">
+    <div>
+      <p class="section-label reveal" style="text-align:left">FIRST DATEとは</p>
+      <h2 class="solution-title reveal">必要なことを<br><em>全部</em>、用意する。</h2>
+      <p class="solution-body reveal">エリアと雰囲気を選ぶだけで、AIが東京のデートプランを即座に設計。プランだけでなく、当日のセリフ例・服装アドバイス・緊張をほぐすメンタルケアまで、まるごと提供します。</p>
+      <button class="btn-primary reveal" onclick="goToApp()">プランを作ってみる</button>
+    </div>
+    <div class="feat-rows">
+      <div class="feat-row reveal" style="transition-delay:.1s"><div class="feat-icon">🗺</div><div><div class="feat-h">AIデートプラン生成</div><p class="feat-p">東京15エリアから選択、雰囲気・予算・時間帯を指定してワンクリックで完成。</p></div></div>
+      <div class="feat-row reveal" style="transition-delay:.15s"><div class="feat-icon">💬</div><div><div class="feat-h">スポットごとのセリフ例</div><p class="feat-p">誘うLINE・到着時のひとこと・次の場所へのつなぎ。そのまま使えます。</p></div></div>
+      <div class="feat-row reveal" style="transition-delay:.2s"><div class="feat-icon">👔</div><div><div class="feat-h">服装・身だしなみアドバイス</div><p class="feat-p">トップス・ボトムス・靴まで具体的に。絶対NGな服装も教えます。</p></div></div>
+      <div class="feat-row reveal" style="transition-delay:.25s"><div class="feat-icon">🧠</div><div><div class="feat-h">緊張をほぐすメンタルケア</div><p class="feat-p">当日朝の心構え、沈黙時のセリフ、相手の反応別の対処法。</p></div></div>
+      <div class="feat-row reveal" style="transition-delay:.3s"><div class="feat-icon">💌</div><div><div class="feat-h">デート後のフォロー文</div><p class="feat-p">送るタイミングも含め、次のデートにつながるLINEをそのまま提供。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how-sec">
+  <p class="section-label reveal">使い方</p>
+  <h2 class="how-title reveal">3分で、完璧な<em style="font-style:italic;color:var(--gold)">デートプランが完成。</em></h2>
+  <div class="steps">
+    <div class="step reveal" style="transition-delay:.1s"><div class="step-circle">1</div><h4>エリアと<br>雰囲気を選ぶ</h4><p>東京のエリア、時間帯、予算感を入力するだけ。</p></div>
+    <div class="step reveal" style="transition-delay:.2s"><div class="step-circle">2</div><h4>AIが<br>プランを設計</h4><p>スポット・セリフ・服装・メンタルケアをまとめて生成。</p></div>
+    <div class="step reveal" style="transition-delay:.3s"><div class="step-circle">3</div><h4>当日の<br>準備をする</h4><p>セリフをコピーし、服装を確認。準備完了。</p></div>
+    <div class="step reveal" style="transition-delay:.4s"><div class="step-circle">♡</div><h4>デートを<br>成功させる</h4><p>相手の反応別フォロー、デート後のLINEまでサポート。</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="price-sec">
+  <div class="price-inner">
+    <p class="section-label reveal">料金</p>
+    <h2 class="price-h reveal">シンプルな、<em style="font-style:italic;color:var(--gold)">従量制。</em></h2>
+    <p class="price-sub-text reveal">使った分だけ。サブスク不要。</p>
+    <div class="price-card reveal">
+      <div class="price-badge">1プランあたり</div>
+      <div class="price-amount">¥500</div>
+      <p class="price-unit">/ プラン生成</p>
+      <p class="price-note">※ 税込。1プランで5つのタブコンテンツをすべて生成。</p>
+      <div class="price-list">
+        <div class="price-li"><span class="price-check">✓</span><span>AIデートプラン（スポット3〜5箇所）</span></div>
+        <div class="price-li"><span class="price-check">✓</span><span>スポットごとのセリフ例（3パターン）</span></div>
+        <div class="price-li"><span class="price-check">✓</span><span>服装・身だしなみアドバイス</span></div>
+        <div class="price-li"><span class="price-check">✓</span><span>緊張をほぐすメンタルケア</span></div>
+        <div class="price-li"><span class="price-check">✓</span><span>相手の反応別フォロー・デート後LINE</span></div>
+        <div class="price-li"><span class="price-check">✓</span><span>プランの保存（無制限）</span></div>
+      </div>
+      <button class="btn-primary" style="width:100%;padding:18px;font-size:14px" onclick="goToApp()">まず1回、無料で試す →</button>
+      <p class="price-free"><strong>初回1回は無料</strong>で体験できます。<br>クレジットカード不要、登録1分。</p>
+    </div>
+  </div>
+</section>
+
+<section class="testi">
+  <p class="section-label reveal">ユーザーの声</p>
+  <h2 class="testi-h reveal">使った人たちの、<em style="font-style:italic;color:var(--gold)">リアルな感想。</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal" style="transition-delay:.1s"><div class="testi-stars">★★★★★</div><p class="testi-text">「セリフをそのまま使ったら、『どこ詳しいね』って言われました。ありがとうございます。」</p><p class="testi-name">大学3年・21歳 / 渋谷プラン利用</p></div>
+    <div class="testi-card reveal" style="transition-delay:.2s"><div class="testi-stars">★★★★★</div><p class="testi-text">「服装アドバイスが超具体的で助かった。NG服装に全部当てはまってて焦りました（笑）」</p><p class="testi-name">大学2年・20歳 / 中目黒プラン利用</p></div>
+    <div class="testi-card reveal" style="transition-delay:.3s"><div class="testi-stars">★★★★★</div><p class="testi-text">「緊張対策の呪文、当日も心の中で唱えてました。2回目のデートに誘えました。」</p><p class="testi-name">大学4年・22歳 / 表参道プラン利用</p></div>
+  </div>
+</section>
+
+<section class="faq-sec">
+  <div class="faq-inner">
+    <h2 class="faq-h reveal">よくある質問</h2>
+    <div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>本当に初デートでも使えますか？</span><span class="faq-icon">+</span></div><div class="faq-a">はい。女性と付き合ったことがない方、初めてデートに誘う方を想定して設計しています。プランから当日のセリフまで、経験ゼロでも迷わないように作られています。</div></div>
+    <div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>東京以外でも使えますか？</span><span class="faq-icon">+</span></div><div class="faq-a">現在は東京エリアに特化しています。エリアは渋谷・新宿・銀座・浅草など15エリアをカバー。「その他」からカスタム入力も可能です。</div></div>
+    <div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>生成したプランは保存できますか？</span><span class="faq-icon">+</span></div><div class="faq-a">はい、最大20件まで保存できます。複数プランを作り比較してから使うこともできます。</div></div>
+    <div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>支払いはどうやってしますか？</span><span class="faq-icon">+</span></div><div class="faq-a">Stripeによるクレジットカード決済（準備中）。初回は無料でお試しいただけます。</div></div>
+    <div class="faq-item reveal"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>セリフや服装アドバイスはどこまで具体的ですか？</span><span class="faq-icon">+</span></div><div class="faq-a">スポットごとに「誘うLINEの文面」「到着時の一言」「移動時のつなぎ」の3パターン。服装はトップス・ボトムス・シューズ・身だしなみを個別に、絶対NGも含めて提示します。</div></div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="cta-final-bg"></div>
+  <p class="section-label reveal">GET STARTED</p>
+  <h2 class="cta-final-h reveal">次のデートを、<br><em>最高の思い出</em>にしよう。</h2>
+  <p class="cta-final-sub reveal">初回無料。3分でプラン完成。</p>
+  <button class="btn-primary reveal" style="font-size:15px;padding:18px 56px" onclick="goToApp()">無料でプランを作る →</button>
+</section>
+
+<footer>
+  <div class="footer-brand">FIRST DATE</div>
+  <div class="footer-copy">© 2025 FIRST DATE. All rights reserved.</div>
+</footer>
+
+</div><!-- /.lp -->
+</div><!-- /#lp-root -->
+
+<!-- ─── APP ─── -->
+<div id="app-root" class="hidden"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const SYSTEM = `あなたは東京の初デートプランの達人です。
+女性と付き合ったことのない男子大学生が初めてのデートを成功させるために必要なことを全部サポートします。
+以下のJSON形式のみで返してください（マークダウン・バッククォート・説明文は一切不要）。
+{
+  "title": "プランのキャッチコピー",
+  "theme": "このプランの狙いと雰囲気（2文）",
+  "spots": [
+    {
+      "name": "店名・スポット名",
+      "address": "東京都○○区...（具体的住所）",
+      "time": "滞在時間",
+      "category": "food | cafe | activity | view | walk",
+      "description": "選んだ理由・雰囲気（2文）",
+      "script": {
+        "invite": "誘うときのLINEや一言",
+        "arrive": "到着時に言う一言",
+        "leave": "次の場所へ移動するときのつなぎ"
+      }
+    }
+  ],
+  "total_time": "合計時間",
+  "budget": "概算予算",
+  "outfit": {
+    "tops": "上着・トップスの具体的アドバイス",
+    "bottoms": "ボトムスの具体的アドバイス",
+    "shoes": "靴のアドバイス",
+    "grooming": "身だしなみのアドバイス",
+    "ng": "絶対NGな服装"
+  },
+  "mental": {
+    "morning": "当日の朝にやること・心構え",
+    "nervous": "緊張したときの対処法",
+    "silence": ["沈黙時のセリフ例1", "沈黙時のセリフ例2"],
+    "mantra": "自分に言い聞かせるひとこと"
+  },
+  "reactions": [
+    {"situation": "相手が楽しそうにしている", "action": "このときにやること・言うこと"},
+    {"situation": "相手が少し静かになった", "action": "このときにやること・言うこと"},
+    {"situation": "相手がスマホを見始めた", "action": "このときにやること・言うこと"},
+    {"situation": "デートが終わりに近づいた", "action": "次につながる締めのセリフ"}
+  ],
+  "after_date": {
+    "line_text": "デート後に送るLINEの文面（そのまま使えるもの）",
+    "timing": "送るタイミング",
+    "next_move": "次のデートへつなげるアドバイス"
+  }
+}`;
+
+const AREAS = ["渋谷・代官山","新宿","銀座・有楽町","浅草","六本木","恵比寿・中目黒","表参道・原宿","お台場","秋葉原","下北沢","池袋","吉祥寺","清澄白河","丸の内・東京駅","品川"];
+const VIBES = [{e:"🌹",l:"ロマンティック"},{e:"😂",l:"笑いあり・楽しい"},{e:"🌿",l:"リラックス"},{e:"📸",l:"インスタ映え"},{e:"🥂",l:"大人っぽい"},{e:"🎡",l:"非日常・ワクワク"}];
+const TIMES = ["昼〜夕方","夕方〜夜","終日"];
+const CAT = { food:{i:"🍽",c:"#e8856a"}, cafe:{i:"☕",c:"#c9a96e"}, activity:{i:"✨",c:"#7ab8d4"}, view:{i:"🌆",c:"#8ec98a"}, walk:{i:"🚶",c:"#b8a87a"} };
+
+const S = {
+  page:{maxWidth:760,margin:"0 auto",padding:"32px 24px 80px"},
+  formHeader:{marginBottom:32,paddingBottom:24,borderBottom:"1px solid rgba(201,169,110,0.1)"},
+  formTitle:{fontSize:26,color:"var(--gold)",margin:"0 0 8px",letterSpacing:4,fontWeight:400,fontFamily:"'Cormorant Garamond',serif"},
+  formSub:{fontSize:14,color:"var(--ink-dim)",margin:0,letterSpacing:1},
+  card:{background:"rgba(201,169,110,0.04)",border:"1px solid rgba(201,169,110,0.15)",borderRadius:3,padding:32},
+  label:{fontSize:11,letterSpacing:3,color:"var(--gold)",margin:"0 0 8px",fontFamily:"'Cormorant Garamond',serif",textTransform:"uppercase",display:"block"},
+  chips:{display:"flex",flexWrap:"wrap",gap:8},
+  chip:(active)=>({background:active?"rgba(201,169,110,0.15)":"transparent",border:`1px solid ${active?"var(--gold)":"rgba(201,169,110,0.2)"}`,borderRadius:2,padding:"7px 14px",color:active?"var(--gold)":"rgba(240,232,216,0.6)",fontSize:13,cursor:"pointer",letterSpacing:0.5,transition:"all 0.18s",fontFamily:"'Noto Serif JP',serif"}),
+  vibeChip:(active)=>({display:"flex",flexDirection:"column",alignItems:"center",gap:4,background:active?"rgba(201,169,110,0.12)":"transparent",border:`1px solid ${active?"var(--gold)":"rgba(201,169,110,0.2)"}`,borderRadius:3,padding:"14px 18px",color:active?"var(--gold)":"rgba(240,232,216,0.6)",cursor:"pointer",minWidth:96,transition:"all 0.18s",fontFamily:"'Noto Serif JP',serif"}),
+  input:{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(201,169,110,0.25)",borderRadius:2,padding:"10px 14px",color:"var(--ink)",fontSize:14,outline:"none",fontFamily:"inherit",boxSizing:"border-box"},
+  genBtn:(off)=>({width:"100%",marginTop:28,padding:16,background:off?"rgba(201,169,110,0.4)":"var(--gold)",border:"none",borderRadius:2,color:"var(--bg)",fontSize:15,fontWeight:700,letterSpacing:3,cursor:off?"not-allowed":"pointer",transition:"all 0.25s",fontFamily:"'Noto Serif JP',serif",opacity:off?0.65:1}),
+  badge:{background:"rgba(201,169,110,0.1)",border:"1px solid rgba(201,169,110,0.25)",borderRadius:2,padding:"5px 14px",fontSize:13,color:"var(--gold)",letterSpacing:1},
+  ghostBtn:{background:"transparent",border:"1px solid rgba(201,169,110,0.3)",borderRadius:2,padding:"8px 20px",color:"var(--gold)",fontSize:13,cursor:"pointer",letterSpacing:1,transition:"all 0.18s",fontFamily:"'Noto Serif JP',serif"},
+  tabBtn:(active)=>({background:active?"rgba(201,169,110,0.12)":"transparent",border:`1px solid ${active?"var(--gold)":"rgba(201,169,110,0.15)"}`,borderRadius:2,padding:"8px 16px",color:active?"var(--gold)":"rgba(240,232,216,0.5)",fontSize:13,cursor:"pointer",letterSpacing:0.5,transition:"all 0.18s",whiteSpace:"nowrap",fontFamily:"'Noto Serif JP',serif"}),
+  spotCard:(open)=>({background:open?"rgba(201,169,110,0.07)":"rgba(255,255,255,0.025)",border:`1px solid ${open?"rgba(201,169,110,0.3)":"rgba(201,169,110,0.12)"}`,borderRadius:2,padding:18,marginBottom:10,cursor:"pointer",transition:"all 0.2s"}),
+  scriptBox:{background:"rgba(12,10,8,0.5)",border:"1px solid rgba(201,169,110,0.15)",borderRadius:2,padding:"16px 18px"},
+  scriptLabel:{fontSize:11,letterSpacing:2,color:"rgba(201,169,110,0.7)",margin:"10px 0 4px"},
+  scriptText:{fontSize:14,color:"var(--ink)",lineHeight:1.7,margin:0,background:"rgba(201,169,110,0.06)",borderRadius:2,padding:"8px 12px",borderLeft:"2px solid rgba(201,169,110,0.4)"},
+  outfitGrid:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12},
+  outfitCard:{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(201,169,110,0.12)",borderRadius:2,padding:"18px 20px"},
+  mentalCard:{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(201,169,110,0.12)",borderRadius:2,padding:20},
+  reactionCard:{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(201,169,110,0.12)",borderRadius:2,padding:"18px 20px",marginBottom:14},
+  afterCard:{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(201,169,110,0.12)",borderRadius:2,padding:22},
+  lineBox:{background:"rgba(12,10,8,0.5)",border:"1px solid rgba(201,169,110,0.2)",borderRadius:2,padding:"16px 18px",margin:"0 0 14px"},
+  savedGrid:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16},
+  savedCard:{background:"rgba(201,169,110,0.04)",border:"1px solid rgba(201,169,110,0.15)",borderRadius:3,padding:22,display:"flex",flexDirection:"column",gap:10},
+};
+
+function App() {
+  const [appPage, setAppPage] = useState("form");
+  const [area, setArea] = useState("");
+  const [customArea, setCustomArea] = useState("");
+  const [vibes, setVibes] = useState([]);
+  const [budget, setBudget] = useState("");
+  const [time, setTime] = useState("夕方〜夜");
+  const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState(null);
+  const [err, setErr] = useState("");
+  const [openSpot, setOpenSpot] = useState(null);
+  const [rTab, setRTab] = useState("plan");
+  const [saved, setSaved] = useState([]);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [viewSaved, setViewSaved] = useState(null);
+
+  useEffect(() => {
+    try { setSaved(JSON.parse(localStorage.getItem("fdp_saved")||"[]")); } catch {}
+  }, []);
+
+  const toggleVibe = v => setVibes(p => p.includes(v)?p.filter(x=>x!==v):[...p,v]);
+
+  const generate = async () => {
+    const target = area==="その他"?customArea:area;
+    if(!target){setErr("エリアを選んでください");return;}
+    setErr(""); setLoading(true); setPlan(null); setOpenSpot(null); setRTab("plan");
+    const msg = `エリア: ${target}\n時間帯: ${time}\n雰囲気: ${vibes.join("、")||"おまかせ"}\n予算感: ${budget||"大学生向け"}`;
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json","x-api-key":"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"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYSTEM,messages:[{role:"user",content:msg}]})
+      });
+      const d = await res.json();
+      const raw = d.content?.map(b=>b.text||"").join("")||"";
+      setPlan(JSON.parse(raw.replace(/```json|```/g,"").trim()));
+      setAppPage("result");
+    } catch { setErr("生成に失敗しました。もう一度お試しください。"); }
+    finally { setLoading(false); }
+  };
+
+  const savePlan = () => {
+    if(!plan)return;
+    const entry={...plan,id:Date.now(),savedAt:new Date().toLocaleDateString("ja-JP")};
+    const next=[entry,...saved].slice(0,20);
+    setSaved(next); localStorage.setItem("fdp_saved",JSON.stringify(next));
+    setSaveMsg("保存しました ♡"); setTimeout(()=>setSaveMsg(""),2200);
+  };
+
+  const dp = viewSaved||plan;
+
+  const NavBar = ()=>(
+    <div className="app-nav">
+      <button className="app-nav-brand" onClick={()=>window.goToLP()}>
+        <span style={{color:"var(--gold)",fontSize:18}}>♡</span>
+        <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:16,letterSpacing:5,color:"var(--gold)",fontWeight:400}}>FIRST DATE</span>
+      </button>
+      <div style={{display:"flex",gap:6}}>
+        {[["form","プランを作る"],["saved",`保存(${saved.length})`]].map(([k,l])=>(
+          <button key={k} className={`app-nav-tab${appPage===k&&!viewSaved?" active":""}`}
+            onClick={()=>{setAppPage(k);setViewSaved(null);}}>
+            {l}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // FORM
+  if(appPage==="form") return (
+    <div>
+      <NavBar/>
+      <div style={S.page}>
+        <div style={S.formHeader}>
+          <h2 style={S.formTitle}>デートを設計する</h2>
+          <p style={S.formSub}>条件を入力するだけで、AIがすべてを考えます</p>
+        </div>
+        <div style={S.card}>
+          <label style={S.label}>📍 エリア</label>
+          <div style={S.chips}>
+            {AREAS.map(a=><button key={a} style={S.chip(area===a)} onClick={()=>setArea(a)}>{a}</button>)}
+            <button style={S.chip(area==="その他")} onClick={()=>setArea("その他")}>✏️ その他</button>
+          </div>
+          {area==="その他"&&<input style={{...S.input,marginTop:10}} placeholder="エリアを入力" value={customArea} onChange={e=>setCustomArea(e.target.value)}/>}
+
+          <label style={{...S.label,marginTop:24}}>🎭 雰囲気</label>
+          <div style={S.chips}>
+            {VIBES.map(({e,l})=><button key={l} style={S.vibeChip(vibes.includes(l))} onClick={()=>toggleVibe(l)}><span style={{fontSize:22}}>{e}</span><span style={{fontSize:12,marginTop:4}}>{l}</span></button>)}
+          </div>
+
+          <div style={{display:"flex",gap:24,marginTop:24}}>
+            <div style={{flex:1}}>
+              <label style={S.label}>🕐 時間帯</label>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {TIMES.map(t=><button key={t} style={S.chip(time===t)} onClick={()=>setTime(t)}>{t}</button>)}
+              </div>
+            </div>
+            <div style={{flex:1}}>
+              <label style={S.label}>💴 予算感</label>
+              <input style={{...S.input,marginTop:4}} placeholder="例: 一人5,000円" value={budget} onChange={e=>setBudget(e.target.value)}/>
+            </div>
+          </div>
+
+          {err&&<p style={{color:"#e87c7c",fontSize:13,margin:"14px 0",textAlign:"center"}}>{err}</p>}
+
+          <button style={S.genBtn(loading)} onClick={generate} disabled={loading}>
+            {loading?<span style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12}}><span className="spin"/>AIがプランを考えています...</span>:"✨ デートプランを生成する"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // SAVED LIST
+  if(appPage==="saved"&&!viewSaved) return (
+    <div>
+      <NavBar/>
+      <div style={S.page}>
+        <div style={S.formHeader}>
+          <h2 style={S.formTitle}>保存済みプラン</h2>
+          <p style={S.formSub}>{saved.length}件保存しています</p>
+        </div>
+        {saved.length===0?
+          <div style={{textAlign:"center",padding:"60px 20px",color:"var(--ink-dim)"}}>
+            <p style={{fontSize:48,margin:"0 0 16px"}}>🗂</p>
+            <p style={{marginBottom:32}}>まだ保存されていません</p>
+            <button style={S.genBtn(false)} onClick={()=>setAppPage("form")}>プランを作る</button>
+          </div>:
+          <div style={S.savedGrid}>
+            {saved.map(p=>(
+              <div key={p.id} style={S.savedCard}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontSize:11,color:"rgba(240,232,216,0.3)",letterSpacing:1}}>{p.savedAt}</span>
+                  <button style={{background:"transparent",border:"none",color:"rgba(240,232,216,0.3)",cursor:"pointer",fontSize:14}} onClick={()=>{const n=saved.filter(x=>x.id!==p.id);setSaved(n);localStorage.setItem("fdp_saved",JSON.stringify(n));}}>✕</button>
+                </div>
+                <h3 style={{fontSize:15,color:"var(--gold)",margin:0,letterSpacing:1,fontWeight:400,fontFamily:"'Cormorant Garamond',serif"}}>{p.title}</h3>
+                <p style={{fontSize:13,color:"var(--ink-dim)",lineHeight:1.6,margin:0}}>{p.theme}</p>
+                <div style={{display:"flex",gap:8,fontSize:12,color:"rgba(240,232,216,0.4)"}}><span>⏱ {p.total_time}</span><span>💴 {p.budget}</span></div>
+                <button style={S.ghostBtn} onClick={()=>{setViewSaved(p);setRTab("plan");setOpenSpot(null);}}>詳細を見る →</button>
+              </div>
+            ))}
+          </div>
+        }
+      </div>
+    </div>
+  );
+
+  // RESULT
+  if((appPage==="result"||viewSaved)&&dp) return (
+    <div>
+      <NavBar/>
+      <div style={S.page}>
+        {viewSaved&&<button style={{background:"transparent",border:"none",color:"rgba(201,169,110,0.7)",fontSize:13,cursor:"pointer",letterSpacing:1,padding:"0 0 24px",display:"block"}} onClick={()=>setViewSaved(null)}>← 一覧に戻る</button>}
+
+        <div style={{textAlign:"center",padding:"32px 20px",borderBottom:"1px solid rgba(201,169,110,0.1)",marginBottom:0}}>
+          <p style={{fontSize:11,letterSpacing:4,color:"rgba(201,169,110,0.6)",margin:"0 0 16px"}}>✦ あなたのデートプラン</p>
+          <h2 style={{fontSize:24,color:"var(--gold)",margin:"0 0 12px",letterSpacing:3,fontWeight:400,fontFamily:"'Cormorant Garamond',serif"}}>{dp.title}</h2>
+          <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.8,margin:"0 0 20px"}}>{dp.theme}</p>
+          <div style={{display:"flex",justifyContent:"center",gap:12,flexWrap:"wrap"}}>
+            <span style={S.badge}>⏱ {dp.total_time}</span>
+            <span style={S.badge}>💴 {dp.budget}</span>
+          </div>
+          {!viewSaved&&<div style={{display:"flex",gap:12,justifyContent:"center",marginTop:20,flexWrap:"wrap"}}>
+            <button style={S.ghostBtn} onClick={savePlan}>{saveMsg||"♡ 保存する"}</button>
+            <button style={S.ghostBtn} onClick={()=>{setAppPage("form");setPlan(null);}}>↺ 作り直す</button>
+          </div>}
+        </div>
+
+        <div style={{display:"flex",gap:6,padding:"20px 0 4px",overflowX:"auto",flexWrap:"wrap"}}>
+          {[["plan","🗺 プラン"],["outfit","👔 服装"],["mental","🧠 メンタル"],["reaction","💡 反応別"],["after","💌 デート後"]].map(([k,l])=>(
+            <button key={k} style={S.tabBtn(rTab===k)} onClick={()=>setRTab(k)}>{l}</button>
+          ))}
+        </div>
+
+        <div className="fade-up" key={rTab} style={{paddingTop:24}}>
+
+          {rTab==="plan"&&dp.spots?.map((spot,i)=>{
+            const cs=CAT[spot.category]||CAT.activity; const open=openSpot===i;
+            return <div key={i} style={{...S.spotCard(open),borderLeft:`3px solid ${cs.c}`}} onClick={()=>setOpenSpot(open?null:i)}>
+              <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <div style={{width:26,height:26,borderRadius:"50%",background:cs.c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"var(--bg)",flexShrink:0}}>{i+1}</div>
+                <span style={{fontSize:22}}>{cs.i}</span>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:15,fontWeight:600,color:"var(--ink)"}}>{spot.name}</div>
+                  <div style={{fontSize:12,color:"rgba(240,232,216,0.4)",marginTop:2}}>{spot.time} · {spot.address}</div>
+                </div>
+                <span style={{color:"rgba(201,169,110,0.5)",transition:"transform 0.2s",transform:open?"rotate(180deg)":"none"}}>▾</span>
+              </div>
+              {open&&<div className="fade-up" style={{marginTop:14,paddingTop:14,borderTop:"1px solid rgba(201,169,110,0.1)"}}>
+                <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.8,margin:"0 0 14px"}}>{spot.description}</p>
+                <div style={S.scriptBox}>
+                  <p style={S.scriptLabel}>📱 誘うときのひとこと</p>
+                  <p style={S.scriptText}>「{spot.script?.invite}」</p>
+                  <p style={S.scriptLabel}>🚶 到着したとき</p>
+                  <p style={S.scriptText}>「{spot.script?.arrive}」</p>
+                  <p style={S.scriptLabel}>➡️ 次の場所へ移るとき</p>
+                  <p style={S.scriptText}>「{spot.script?.leave}」</p>
+                </div>
+              </div>}
+            </div>;
+          })}
+
+          {rTab==="outfit"&&dp.outfit&&<div>
+            <div style={S.outfitGrid}>
+              {[["👕 トップス",dp.outfit.tops],["👖 ボトムス",dp.outfit.bottoms],["👟 シューズ",dp.outfit.shoes],["✂️ 身だしなみ",dp.outfit.grooming]].map(([label,text])=>(
+                <div key={label} style={S.outfitCard}>
+                  <p style={{fontSize:12,letterSpacing:2,color:"var(--gold)",margin:"0 0 8px"}}>{label}</p>
+                  <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.8,margin:0}}>{text}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{...S.outfitCard,borderColor:"rgba(232,120,106,0.25)",background:"rgba(232,120,106,0.05)"}}>
+              <p style={{fontSize:12,letterSpacing:2,color:"#e87c7c",margin:"0 0 8px"}}>🚫 絶対NG</p>
+              <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.8,margin:0}}>{dp.outfit.ng}</p>
+            </div>
+          </div>}
+
+          {rTab==="mental"&&dp.mental&&<div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {[["🌅 当日の朝にやること",dp.mental.morning],["😰 緊張してきたら",dp.mental.nervous]].map(([t,v])=>(
+              <div key={t} style={S.mentalCard}>
+                <p style={{fontSize:12,letterSpacing:2,color:"var(--gold)",margin:"0 0 10px"}}>{t}</p>
+                <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.9,margin:0}}>{v}</p>
+              </div>
+            ))}
+            <div style={S.mentalCard}>
+              <p style={{fontSize:12,letterSpacing:2,color:"var(--gold)",margin:"0 0 10px"}}>🤐 沈黙になったとき</p>
+              {dp.mental.silence?.map((s,i)=><p key={i} style={{...S.scriptText,margin:"6px 0 0"}}>「{s}」</p>)}
+            </div>
+            <div style={{...S.mentalCard,borderColor:"rgba(201,169,110,0.4)",background:"rgba(201,169,110,0.08)"}}>
+              <p style={{fontSize:11,letterSpacing:3,color:"var(--gold)",margin:"0 0 8px"}}>✦ 今日の呪文</p>
+              <p style={{fontSize:22,color:"var(--ink)",textAlign:"center",lineHeight:1.6,padding:"8px 0",fontFamily:"'Cormorant Garamond',serif"}}>「{dp.mental.mantra}」</p>
+            </div>
+          </div>}
+
+          {rTab==="reaction"&&dp.reactions&&<div style={{display:"flex",flexDirection:"column",gap:14}}>
+            {dp.reactions.map((r,i)=>(
+              <div key={i} style={S.reactionCard}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                  <div style={{width:24,height:24,borderRadius:"50%",background:"rgba(201,169,110,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"var(--gold)",flexShrink:0}}>{i+1}</div>
+                  <span style={{fontSize:14,fontWeight:600,color:"var(--ink)"}}>{r.situation}</span>
+                </div>
+                <div style={{display:"flex",alignItems:"flex-start",gap:12,background:"rgba(201,169,110,0.06)",borderRadius:2,padding:"12px 14px",borderLeft:"2px solid rgba(201,169,110,0.4)"}}>
+                  <span style={{fontSize:18,flexShrink:0}}>→</span>
+                  <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.8,margin:0}}>{r.action}</p>
+                </div>
+              </div>
+            ))}
+          </div>}
+
+          {rTab==="after"&&dp.after_date&&<div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <div style={S.afterCard}>
+              <p style={{fontSize:12,letterSpacing:2,color:"var(--gold)",margin:"0 0 6px"}}>📱 デート後に送るLINE</p>
+              <p style={{fontSize:12,color:"rgba(240,232,216,0.4)",letterSpacing:1,margin:"0 0 12px"}}>{dp.after_date.timing}</p>
+              <div style={S.lineBox}><p style={{fontSize:14,color:"var(--ink)",lineHeight:2,margin:0,whiteSpace:"pre-wrap"}}>{dp.after_date.line_text}</p></div>
+              <button style={S.ghostBtn} onClick={()=>{navigator.clipboard.writeText(dp.after_date.line_text);alert("コピーしました！");}}>📋 コピーする</button>
+            </div>
+            <div style={S.afterCard}>
+              <p style={{fontSize:12,letterSpacing:2,color:"var(--gold)",margin:"0 0 10px"}}>💌 次のデートへつなげるには</p>
+              <p style={{fontSize:14,color:"var(--ink-dim)",lineHeight:1.9,margin:0}}>{dp.after_date.next_move}</p>
+            </div>
+          </div>}
+
+        </div>
+      </div>
+    </div>
+  );
+
+  return <div><NavBar/></div>;
+}
+
+// Mount app
+const appContainer = document.getElementById("app-root");
+const appRoot = ReactDOM.createRoot(appContainer);
+appRoot.render(<App/>);
+</script>
+
+<script>
+// ── PAGE SWITCHING ──
+function goToApp() {
+  const lp = document.getElementById("lp-root");
+  const app = document.getElementById("app-root");
+  lp.classList.add("hidden");
+  app.classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function goToLP() {
+  const lp = document.getElementById("lp-root");
+  const app = document.getElementById("app-root");
+  app.classList.add("hidden");
+  lp.classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+window.goToLP = goToLP;
+window.goToApp = goToApp;
+
+// ── SCROLL REVEAL ──
+document.addEventListener("DOMContentLoaded", () => {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+});
+</script>
+</body>
+</html>
